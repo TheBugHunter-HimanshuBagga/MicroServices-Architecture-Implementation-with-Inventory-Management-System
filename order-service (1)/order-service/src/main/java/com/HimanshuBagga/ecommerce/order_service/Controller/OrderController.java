@@ -23,12 +23,19 @@ import java.util.List;
 public class OrderController {
     private final OrderService orderService;
     private final ModelMapper modelMapper;
+
+    @GetMapping("/helloOrders")
+    public String helloOrders(){
+        return "Hello from Order Service";
+    }
+
     @GetMapping
     public ResponseEntity<List<OrderRequestDto>> getAllOrders(){
         log.info("Fetching All orders via controller");
         List<OrderRequestDto> orderRequestDto = orderService.getAllOrder();
         return ResponseEntity.ok(orderRequestDto);
     }
+
     @GetMapping("/{id}")
     public ResponseEntity<OrderRequestDto> getOrderById(@RequestParam Long id){
         log.info("Fetching order with Id : {} ", id);
