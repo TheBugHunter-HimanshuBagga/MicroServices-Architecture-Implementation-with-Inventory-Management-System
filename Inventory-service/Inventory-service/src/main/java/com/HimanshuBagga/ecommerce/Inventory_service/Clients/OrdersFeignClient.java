@@ -9,6 +9,4 @@ public interface OrdersFeignClient {
     @GetMapping("/core/HelloOrders")
     String HelloOrders();
 
-
-
 }

@@ -1,18 +1,18 @@
 package com.HimanshuBagga.ecommerce.order_service.Controller;
 
+import com.HimanshuBagga.ecommerce.order_service.Clients.InventoryFeignClient;
 import com.HimanshuBagga.ecommerce.order_service.DTO.OrderRequestDto;
+import com.HimanshuBagga.ecommerce.order_service.DTO.OrderRequestItemDto;
 import com.HimanshuBagga.ecommerce.order_service.Repository.OrderRepository;
 import com.HimanshuBagga.ecommerce.order_service.entity.Orders;
 import com.HimanshuBagga.ecommerce.order_service.service.OrderService;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.query.Order;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -41,5 +41,11 @@ public class OrderController {
         log.info("Fetching order with Id : {} ", id);
         OrderRequestDto orders = orderService.getOrderById(id);
         return ResponseEntity.ok(orders);
+    }
+
+    @PostMapping("/Create-order")
+    public ResponseEntity<OrderRequestDto> createOrder(@RequestBody OrderRequestDto orderRequestDto){
+        OrderRequestDto orderRequestDto1 = orderService.createOrder(orderRequestDto);
+        return ResponseEntity.ok(orderRequestDto1);
     }
 }

@@ -51,7 +51,7 @@ public class ProductController {
         return ResponseEntity.ok(inventory);
     }
 
-    @PutMapping("reduce-stocks")
+    @PutMapping("/reduce-stocks")
     public ResponseEntity<Double> reduceStock(@RequestBody OrderRequestDTO orderRequestDTO){
         Double totalPrice = productService.reduceStocks(orderRequestDTO);
         return ResponseEntity.ok(totalPrice);

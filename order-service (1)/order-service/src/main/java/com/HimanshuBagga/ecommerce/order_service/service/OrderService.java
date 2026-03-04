@@ -1,8 +1,11 @@
 package com.HimanshuBagga.ecommerce.order_service.service;
 
+import com.HimanshuBagga.ecommerce.order_service.Clients.InventoryFeignClient;
 import com.HimanshuBagga.ecommerce.order_service.DTO.OrderRequestDto;
 import com.HimanshuBagga.ecommerce.order_service.DTO.OrderRequestItemDto;
 import com.HimanshuBagga.ecommerce.order_service.Repository.OrderRepository;
+import com.HimanshuBagga.ecommerce.order_service.entity.OrderItem;
+import com.HimanshuBagga.ecommerce.order_service.entity.OrderStatus;
 import com.HimanshuBagga.ecommerce.order_service.entity.Orders;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +21,7 @@ import java.util.List;
 public class OrderService {
     private final OrderRepository orderRepository;
     private final ModelMapper modelMapper;
+    private final InventoryFeignClient inventoryFeignClient;
 
     public List<OrderRequestDto> getAllOrder(){
         log.info("Fetching all the Orders");
@@ -35,4 +39,17 @@ public class OrderService {
         return modelMapper.map(order , OrderRequestDto.class);
     }
 
+    public OrderRequestDto createOrder(OrderRequestDto orderRequestDto) {
+        // calling Inventory Microservices
+        Double totalPrice = inventoryFeignClient.reduceStocks(orderRequestDto);
+
+        Orders orders = modelMapper.map(orderRequestDto , Orders.class);
+        for(OrderItem orderItem:orders.getItem()){
+            orderItem.setOrder(orders);
+        }
+        orders.setTotalPrice(totalPrice);
+        orders.setOrderStatus(OrderStatus.CONFIRMED);
+        Orders savedOrders = orderRepository.save(orders);
+        return modelMapper.map(savedOrders , OrderRequestDto.class);
+    }
 }
