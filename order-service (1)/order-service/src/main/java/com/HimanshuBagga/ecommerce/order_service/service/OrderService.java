@@ -7,6 +7,8 @@ import com.HimanshuBagga.ecommerce.order_service.Repository.OrderRepository;
 import com.HimanshuBagga.ecommerce.order_service.entity.OrderItem;
 import com.HimanshuBagga.ecommerce.order_service.entity.OrderStatus;
 import com.HimanshuBagga.ecommerce.order_service.entity.Orders;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
+import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -39,10 +41,13 @@ public class OrderService {
         return modelMapper.map(order , OrderRequestDto.class);
     }
 
+    @Retry(name = "inventoryRetry" , fallbackMethod = "createOrderFallback")
+    @RateLimiter(name = "inventoryRateLimiter" , fallbackMethod = "createOrderFallback") // if called more than the limit in a particular time then the method will return a  fallback
     public OrderRequestDto createOrder(OrderRequestDto orderRequestDto) {
         // calling Inventory Microservices
+        log.info("Calling craeteOrder");
         Double totalPrice = inventoryFeignClient.reduceStocks(orderRequestDto);
-
+        // here we are doing an openfeign client impl for inter microservice communication but to make it more stable and resilent to any kind of error
         Orders orders = modelMapper.map(orderRequestDto , Orders.class);
         for(OrderItem orderItem:orders.getItem()){
             orderItem.setOrder(orders);
@@ -51,5 +56,11 @@ public class OrderService {
         orders.setOrderStatus(OrderStatus.CONFIRMED);
         Orders savedOrders = orderRepository.save(orders);
         return modelMapper.map(savedOrders , OrderRequestDto.class);
+    }
+
+    public OrderRequestDto createOrderFallback(OrderRequestDto orderRequestDto, Throwable throwable){
+        log.error("Fallback ouccered due to : {}", throwable.getMessage());
+
+        return new OrderRequestDto();
     }
 }
