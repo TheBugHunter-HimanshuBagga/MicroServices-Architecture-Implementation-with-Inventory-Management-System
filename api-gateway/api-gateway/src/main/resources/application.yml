@@ -1,3 +1,6 @@
+jwt:
+  secretKey : aswdefxcdbhfnkghd
+
 spring:
   application:
     name: api-gateway
@@ -13,6 +16,13 @@ spring:
             - StripPrefix=2
             - RedirectTo=302, http://youtube.com
             - name: LoggingOrdersFilter
+            - name: Authentication
+              args:
+                isEnabled: false
+            - name: Authorization
+              args:
+                allowedRoles: ADMIN, SUPER_ADMIN
+
         - id: inventory-service
           uri: lb://INVENTORY-SERVICE
           predicates:
@@ -20,6 +30,7 @@ spring:
           filters:
             - StripPrefix=2
             - RedirectTo=302, http://youtube.com
+            - name: Authentication
 
 eureka:
   client:
