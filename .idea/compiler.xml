@@ -8,6 +8,7 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="api-gateway" />
+        <module name="config-server" />
         <module name="discovery-server" />
       </profile>
       <profile name="Annotation profile for order-service" enabled="true">
@@ -26,6 +27,7 @@
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="Inventory-service" options="-parameters" />
       <module name="api-gateway" options="-parameters" />
+      <module name="config-server" options="-parameters" />
       <module name="discovery-server" options="-parameters" />
       <module name="order-service" options="-parameters" />
     </option>
